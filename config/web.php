@@ -50,7 +50,25 @@ $config = [
             'showScriptName' => false,
             'enableStrictParsing' => false,
             'rules' => [],
-        ]
+
+            'class' => 'codemix\localeurls\UrlManager',
+            // List all supported languages here
+            // Make sure, you include your app's default language.
+            'languages' => ['en', 'en', 'de', 'es'],
+        ],
+        'i18n' => [
+            'translations' => [
+                'app*' => [
+                    'class' => 'yii\i18n\PhpMessageSource',
+                    //'basePath' => '@app/messages',
+                    //'sourceLanguage' => 'en-US',
+                    'fileMap' => [
+                        'app' => 'app.php',
+                        'app/error' => 'error.php',
+                    ],
+                ],
+            ],
+        ],
     ],
     'params' => $params,
 ];
