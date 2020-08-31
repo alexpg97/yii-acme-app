@@ -2,6 +2,7 @@
 
 namespace app\models;
 
+use phpDocumentor\Reflection\Types\Expression;
 use Yii;
 
 /**
@@ -25,6 +26,10 @@ use Yii;
  */
 class User extends \yii\db\ActiveRecord
 {
+    const STATUS_INSERTED = 0;
+    const STATUS_ACTIVE = 1;
+    const STATUS_BLOCKED = 2;
+
     /**
      * {@inheritdoc}
      */
@@ -39,10 +44,9 @@ class User extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['uid', 'username', 'email', 'password', 'updated'], 'required'],
-            [['status'], 'default', 'value' => null],
-            [['status'], 'integer'],
-            [['contact_email', 'contact_phone'], 'boolean'],
+            [['uid', 'username', 'email', 'password'], 'required'],
+            [['email'], 'email'],
+            [['status', 'contact_email', 'contact_phone'], 'boolean'],
             [['created', 'updated'], 'safe'],
             [['uid', 'password'], 'string', 'max' => 60],
             [['username'], 'string', 'max' => 45],
@@ -50,6 +54,30 @@ class User extends \yii\db\ActiveRecord
             [['email'], 'unique'],
             [['uid'], 'unique'],
         ];
+    }
+
+    public function beforeValidate()
+    {
+        if ($this->isNewRecord) {
+            $this->setUid();
+        }
+        return parent::beforeValidate();
+    }
+
+    public function setUid()
+    {
+        $this->uid = Yii::$app->getSecurity()->generatePasswordHash((date('YmdHis' . rand(1, 9999))));
+    }
+
+    public function beforeSave($insert)
+    {
+        if ($this->isNewRecord) {
+            $this->password = Yii::$app->getSecurity()->generatePasswordHash($this->password);
+        }
+        // $expression = new Expression('NOW()');
+        // $now = (new \yii\db\Query)->select($expression)->scalar();
+        $this->updated = date('Y-m-d H:i:s');;
+        return parent::beforeValidate();
     }
 
     /**
