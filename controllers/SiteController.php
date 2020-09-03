@@ -9,7 +9,9 @@ use yii\web\Response;
 use yii\filters\VerbFilter;
 use app\models\LoginForm;
 use app\models\ContactForm;
+use app\models\Mailer as AcmeMailer;
 use app\models\User;
+use yii\web\NotFoundHttpException;
 
 class SiteController extends Controller
 {
@@ -95,7 +97,7 @@ class SiteController extends Controller
         }
 
         $newUser = new User();
-        if ($newUser->load(Yii::$app->request->post()) && $newUser->save()) {
+        if ($newUser->load(Yii::$app->request->post()) && $newUser->save() && AcmeMailer::send(AcmeMailer::TYPE_REGISTRATION, $newUser)) {
             Yii::$app->session->setFlash('success', Yii::t('app', 'successfully registered'));
             return $this->goHome();
         }
@@ -103,6 +105,20 @@ class SiteController extends Controller
         return $this->render('register', [
             'newUser' => $newUser
         ]);
+    }
+
+    public function actionActivate($user, $token)
+    {
+        $userToActivate = User::find()->where(['id' => $user, 'uid' => $token])->one();
+        if (empty($userToActivate)) {
+            throw new NotFoundHttpException('USer not found');
+        }
+        if ($userToActivate->activate()) {
+            Yii::$app->session->setFlash('success', Yii::t('app', 'Successfully activated'));
+        } else {
+            Yii::$app->session->setFlash('error', Yii::t('app', 'Can not activate'));
+        }
+        return $this->goHome();
     }
 
     /**
