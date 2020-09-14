@@ -12,6 +12,7 @@ use app\models\ContactForm;
 use app\models\Mailer as AcmeMailer;
 use app\models\User;
 use yii\web\NotFoundHttpException;
+use app\components\AuthHandler;
 
 class SiteController extends Controller
 {
@@ -53,6 +54,10 @@ class SiteController extends Controller
             'captcha' => [
                 'class' => 'yii\captcha\CaptchaAction',
                 'fixedVerifyCode' => YII_ENV_TEST ? 'testme' : null,
+            ],
+            'auth' => [
+                'class' => 'yii\authclient\AuthAction',
+                'successCallback' => [$this, 'onAuthSuccess'],
             ],
         ];
     }
@@ -159,5 +164,13 @@ class SiteController extends Controller
     public function actionAbout()
     {
         return $this->render('about');
+    }
+
+    /**
+     * Yii2 AuthClient
+     */
+    public function onAuthSuccess($client)
+    {
+        (new AuthHandler($client))->handle();
     }
 }

@@ -82,6 +82,30 @@ $config = [
                 ],
             ],
         ],
+        'authClientCollection' => [
+            'class' => 'yii\authclient\Collection',
+            'clients' => [
+                'google' => [
+                    'class' => 'yii\authclient\clients\Google',
+                    'clientId' => 'google_client_id',
+                    'clientSecret' => 'google_client_secret',
+                ],
+                'facebook' => [
+                    'class' => 'yii\authclient\clients\Facebook',
+                    'clientId' => env('FB_CLIENT_ID'),
+                    'clientSecret' => env('FB_CLIENT_SECRET'),
+                ],
+                'twitter' => [
+                    'class' => 'yii\authclient\clients\Twitter',
+                    'attributeParams' => [
+                        'include_email' => 'true'
+                    ],
+                    'consumerKey' => 'twitter_consumer_key',
+                    'consumerSecret' => 'twitter_consumer_secret',
+                ],
+                // etc.
+            ],
+        ]
     ],
     'params' => $params,
 ];
